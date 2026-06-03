@@ -73,23 +73,51 @@ export default function Sidebar() {
             key={to}
             to={to}
             className={({ isActive }) =>
-              `flex-1 flex flex-col items-center justify-center gap-0.5 py-2 text-[10px] transition-colors ${
-                isActive
-                  ? "text-green-600 font-medium"
-                  : "text-gray-400"
+              `flex-1 flex flex-col items-center justify-center py-2 text-[10px] transition-colors ${
+                isActive ? "text-green-600 font-medium" : "text-gray-400"
               }`
             }
           >
             {({ isActive }) => (
               <>
-                <span className={`p-1 rounded-lg transition-colors ${isActive ? "bg-green-50" : ""}`}>
+                <span
+                  className={`p-1 rounded-lg transition-colors ${
+                    isActive ? "bg-green-50" : ""
+                  }`}
+                >
                   <Icon size={18} />
                 </span>
-                {label}
               </>
             )}
           </NavLink>
         ))}
+
+        {/* Logout Icon Only */}
+        <button
+          onClick={() => {
+            localStorage.removeItem("token");
+            window.location.href = "/login";
+          }}
+          className="flex-1 flex items-center justify-center py-2 text-red-500 active:scale-95 transition"
+        >
+          <span className="p-1 rounded-lg">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+              <polyline points="16 17 21 12 16 7" />
+              <line x1="21" y1="12" x2="9" y2="12" />
+            </svg>
+          </span>
+        </button>
       </nav>
     </>
   );
