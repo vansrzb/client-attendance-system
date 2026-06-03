@@ -8,7 +8,7 @@ interface Props {
   students: Student[];
   onDeleted: () => void;
   onShowQR: (s: Student) => void;
-  onEdit: (s: Student) => void; // NEW: trigger edit modal/form
+  onEdit?: (s: Student) => void; // NEW: trigger edit modal/form
 }
 
 function sortByStudentNumber(list: Student[]): Student[] {
@@ -118,7 +118,7 @@ export default function StudentTable({ students, onDeleted, onShowQR, onEdit }: 
                   variant="ghost"
                   size="icon"
                   className="h-7 w-7 text-gray-400 hover:text-blue-600"
-                  onClick={() => onEdit(s)}
+                  onClick={() => onEdit?.(s)}
                   title="Edit student"
                 >
                   <Pencil size={14} />
