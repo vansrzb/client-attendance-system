@@ -19,7 +19,6 @@ export default function Students() {
   const [selectedClass, setSelectedClass] = useState<number | null>(null);
   const [students, setStudents] = useState<Student[]>([]);
   const [qrStudent, setQrStudent] = useState<Student | null>(null);
-  const [editingStudent, setEditingStudent] = useState<Student | null>(null);
 
   useEffect(() => {
     getClasses().then(setClasses);
@@ -62,7 +61,6 @@ export default function Students() {
             students={students}
             onDeleted={loadStudents}
             onShowQR={setQrStudent}
-            onEdit={setEditingStudent}
           />
         </>
       )}
