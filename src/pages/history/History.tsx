@@ -5,14 +5,18 @@ import type { Class } from "../../types/class";
 import type { AttendanceSession, AttendanceRecord } from "../../types/attendance";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select";
 import AttendanceTable from "../../components/attendance/AttendanceTable";
-import { ChevronRight, ChevronLeft } from "lucide-react";
+import { ChevronRight, ChevronLeft, FileText, Sheet, FileDown, Loader2 } from "lucide-react";
+import { exportToPDF, exportToExcel, exportToWord } from "../../utils/exportAttendance";
+import { Button } from "../../components/ui/button";
 
 export default function History() {
   const [classes, setClasses] = useState<Class[]>([]);
   const [selectedClass, setSelectedClass] = useState<number | null>(null);
+  const [selectedClassName, setSelectedClassName] = useState<string>("");
   const [sessions, setSessions] = useState<AttendanceSession[]>([]);
   const [selectedSession, setSelectedSession] = useState<AttendanceSession | null>(null);
   const [records, setRecords] = useState<AttendanceRecord[]>([]);
+  const [exporting, setExporting] = useState<"pdf" | "excel" | "word" | null>(null);
 
   useEffect(() => { getClasses().then(setClasses); }, []);
 
@@ -30,6 +34,70 @@ export default function History() {
     setRecords(data);
   };
 
+  const handleExport = async (type: "pdf" | "excel" | "word") => {
+    if (!selectedSession || records.length === 0) return;
+    setExporting(type);
+    try {
+      if (type === "pdf") exportToPDF(selectedSession, records, selectedClassName);
+      else if (type === "excel") await exportToExcel(selectedSession, records, selectedClassName);
+      else await exportToWord(selectedSession, records, selectedClassName);
+    } finally {
+      setExporting(null);
+    }
+  };
+
+  const ExportBar = () =>
+    selectedSession && records.length > 0 ? (
+      <div className="flex items-center gap-2 flex-wrap">
+        <span className="text-xs text-gray-400 mr-1 hidden sm:inline">Export:</span>
+
+        <Button
+          variant="outline"
+          size="sm"
+          className="h-8 text-xs gap-1.5 text-gray-600 hover:text-red-600 hover:border-red-200 hover:bg-red-50 transition-colors"
+          onClick={() => handleExport("pdf")}
+          disabled={exporting !== null}
+        >
+          {exporting === "pdf" ? (
+            <Loader2 size={13} className="animate-spin" />
+          ) : (
+            <FileText size={13} className="text-red-500" />
+          )}
+          PDF
+        </Button>
+
+        <Button
+          variant="outline"
+          size="sm"
+          className="h-8 text-xs gap-1.5 text-gray-600 hover:text-green-700 hover:border-green-200 hover:bg-green-50 transition-colors"
+          onClick={() => handleExport("excel")}
+          disabled={exporting !== null}
+        >
+          {exporting === "excel" ? (
+            <Loader2 size={13} className="animate-spin" />
+          ) : (
+            <Sheet size={13} className="text-green-600" />
+          )}
+          Excel
+        </Button>
+
+        <Button
+          variant="outline"
+          size="sm"
+          className="h-8 text-xs gap-1.5 text-gray-600 hover:text-blue-700 hover:border-blue-200 hover:bg-blue-50 transition-colors"
+          onClick={() => handleExport("word")}
+          disabled={exporting !== null}
+        >
+          {exporting === "word" ? (
+            <Loader2 size={13} className="animate-spin" />
+          ) : (
+            <FileDown size={13} className="text-blue-500" />
+          )}
+          Word
+        </Button>
+      </div>
+    ) : null;
+
   return (
     <div className="space-y-5">
       <div>
@@ -37,7 +105,12 @@ export default function History() {
         <p className="text-sm text-gray-400 mt-0.5">View past attendance sessions</p>
       </div>
 
-      <Select onValueChange={(v) => setSelectedClass(Number(v))}>
+      <Select
+        onValueChange={(v) => {
+          setSelectedClass(Number(v));
+          setSelectedClassName(classes.find((c) => c.id === Number(v))?.class_name ?? "");
+        }}
+      >
         <SelectTrigger className="w-full sm:w-56 h-9 text-sm">
           <SelectValue placeholder="Select a class" />
         </SelectTrigger>
@@ -70,13 +143,16 @@ export default function History() {
               </div>
             ) : (
               <div className="space-y-3">
-                <button
-                  onClick={() => { setSelectedSession(null); setRecords([]); }}
-                  className="flex items-center gap-1 text-sm text-green-600 font-medium"
-                >
-                  <ChevronLeft size={15} />
-                  Sessions
-                </button>
+                <div className="flex items-center justify-between">
+                  <button
+                    onClick={() => { setSelectedSession(null); setRecords([]); }}
+                    className="flex items-center gap-1 text-sm text-green-600 font-medium"
+                  >
+                    <ChevronLeft size={15} />
+                    Sessions
+                  </button>
+                  <ExportBar />
+                </div>
                 <p className="text-xs text-gray-500">
                   {new Date(selectedSession.attendance_date).toLocaleDateString("en-PH", {
                     weekday: "long", month: "long", day: "numeric", year: "numeric",
@@ -108,9 +184,19 @@ export default function History() {
                 </button>
               ))}
             </div>
-            <div className="col-span-3">
+            <div className="col-span-3 space-y-3">
               {selectedSession ? (
-                <AttendanceTable records={records} onUpdated={() => loadSession(selectedSession)} />
+                <>
+                  <div className="flex items-center justify-between">
+                    <p className="text-xs text-gray-500">
+                      {new Date(selectedSession.attendance_date).toLocaleDateString("en-PH", {
+                        weekday: "long", month: "long", day: "numeric", year: "numeric",
+                      })}
+                    </p>
+                    <ExportBar />
+                  </div>
+                  <AttendanceTable records={records} onUpdated={() => loadSession(selectedSession)} />
+                </>
               ) : (
                 <p className="text-sm text-gray-400 pt-8 text-center">Select a session to view records.</p>
               )}
