@@ -25,7 +25,43 @@ export default function AttendanceTable({ records, onUpdated }: Props) {
         <span className="text-red-500 font-medium">{absent} Absent</span>
         <span className="text-gray-400">{records.length} Total</span>
       </div>
-      <div className="border border-gray-100 rounded-lg overflow-hidden">
+
+      {/* Mobile: card list */}
+      <div className="sm:hidden space-y-2">
+        {records.map((r) => (
+          <div key={r.id} className="bg-white border border-gray-100 rounded-lg px-4 py-3 flex items-center justify-between gap-3">
+            <div className="min-w-0">
+              <p className="text-sm font-medium text-gray-800 truncate">{r.full_name}</p>
+              <p className="text-xs text-gray-400 font-mono mt-0.5">{r.student_number}</p>
+              <p className="text-xs text-gray-400 mt-0.5">
+                {r.scanned_at ? new Date(r.scanned_at).toLocaleTimeString() : "—"}
+              </p>
+            </div>
+            <div className="flex flex-col items-end gap-2 shrink-0">
+              <Badge
+                className={r.status === "present"
+                  ? "bg-green-50 text-green-700 border-green-200"
+                  : "bg-red-50 text-red-600 border-red-200"
+                }
+                variant="outline"
+              >
+                {r.status}
+              </Badge>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-xs h-7 text-gray-400 hover:text-gray-700 px-2"
+                onClick={() => toggle(r)}
+              >
+                Toggle
+              </Button>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Desktop: table */}
+      <div className="hidden sm:block border border-gray-100 rounded-lg overflow-hidden">
         <table className="w-full text-sm">
           <thead>
             <tr className="bg-gray-50 border-b border-gray-100">
@@ -42,10 +78,13 @@ export default function AttendanceTable({ records, onUpdated }: Props) {
                 <td className="px-4 py-3 font-mono text-xs text-gray-500">{r.student_number}</td>
                 <td className="px-4 py-3 font-medium text-gray-800">{r.full_name}</td>
                 <td className="px-4 py-3">
-                  <Badge className={r.status === "present"
-                    ? "bg-green-50 text-green-700 border-green-200"
-                    : "bg-red-50 text-red-600 border-red-200"
-                  } variant="outline">
+                  <Badge
+                    className={r.status === "present"
+                      ? "bg-green-50 text-green-700 border-green-200"
+                      : "bg-red-50 text-red-600 border-red-200"
+                    }
+                    variant="outline"
+                  >
                     {r.status}
                   </Badge>
                 </td>
@@ -53,9 +92,12 @@ export default function AttendanceTable({ records, onUpdated }: Props) {
                   {r.scanned_at ? new Date(r.scanned_at).toLocaleTimeString() : "—"}
                 </td>
                 <td className="px-4 py-3 text-right">
-                  <Button variant="ghost" size="sm"
+                  <Button
+                    variant="ghost"
+                    size="sm"
                     className="text-xs h-7 text-gray-400 hover:text-gray-700"
-                    onClick={() => toggle(r)}>
+                    onClick={() => toggle(r)}
+                  >
                     Toggle
                   </Button>
                 </td>

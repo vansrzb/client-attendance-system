@@ -8,7 +8,8 @@ export default function AppLayout() {
       <Sidebar />
       <div className="flex flex-col flex-1 overflow-hidden">
         <Header />
-        <main className="flex-1 overflow-y-auto p-6">
+        {/* mt-12 clears the fixed mobile top bar (h-12), mb-16 clears the fixed bottom nav */}
+        <main className="flex-1 overflow-y-auto px-4 py-5 sm:px-6 sm:py-6 mt-12 mb-16 sm:mt-0 sm:mb-0">
           <Outlet />
         </main>
       </div>

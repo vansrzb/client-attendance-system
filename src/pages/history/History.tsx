@@ -30,13 +30,8 @@ export default function History() {
     setRecords(data);
   };
 
-  const handleBack = () => {
-    setSelectedSession(null);
-    setRecords([]);
-  };
-
   return (
-    <div className="space-y-5 px-4 sm:px-0">
+    <div className="space-y-5">
       <div>
         <h1 className="text-xl font-semibold text-gray-900">History</h1>
         <p className="text-sm text-gray-400 mt-0.5">View past attendance sessions</p>
@@ -55,7 +50,7 @@ export default function History() {
 
       {sessions.length > 0 && (
         <>
-          {/* Mobile: step-through (session list → records) */}
+          {/* Mobile: drill-down */}
           <div className="sm:hidden">
             {!selectedSession ? (
               <div className="space-y-1">
@@ -76,7 +71,7 @@ export default function History() {
             ) : (
               <div className="space-y-3">
                 <button
-                  onClick={handleBack}
+                  onClick={() => { setSelectedSession(null); setRecords([]); }}
                   className="flex items-center gap-1 text-sm text-green-600 font-medium"
                 >
                   <ChevronLeft size={15} />

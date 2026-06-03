@@ -23,7 +23,7 @@ export default function Students() {
   useEffect(() => { loadStudents(); }, [selectedClass]);
 
   return (
-    <div className="space-y-5 px-4 sm:px-0">
+    <div className="space-y-5">
       <div>
         <h1 className="text-xl font-semibold text-gray-900">Students</h1>
         <p className="text-sm text-gray-400 mt-0.5">Manage students per class</p>

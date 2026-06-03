@@ -40,7 +40,7 @@ export default function Attendance() {
   };
 
   return (
-    <div className="space-y-5 px-4 sm:px-0">
+    <div className="space-y-5">
       <div>
         <h1 className="text-xl font-semibold text-gray-900">Attendance</h1>
         <p className="text-sm text-gray-400 mt-0.5">Start a session and scan QR codes</p>
@@ -69,16 +69,14 @@ export default function Attendance() {
       {error && <p className="text-xs text-red-500">{error}</p>}
 
       {sessionId && (
-        <div className="flex flex-col-reverse sm:grid sm:grid-cols-3 gap-5">
-          {/* Scanner — on mobile shows below stats/table */}
-          <div className="sm:col-span-1 sm:order-2">
-            <h2 className="text-sm font-medium text-gray-700 mb-3">Scan Absent</h2>
-            <QRScanner sessionId={sessionId} onScanned={() => loadRecords(sessionId)} />
-          </div>
-          {/* Stats + Table */}
-          <div className="sm:col-span-2 sm:order-1 space-y-4">
+        <div className="flex flex-col gap-5 sm:grid sm:grid-cols-3">
+          <div className="sm:col-span-2 space-y-4">
             <AttendanceStats records={records} />
             <AttendanceTable records={records} onUpdated={() => loadRecords(sessionId)} />
+          </div>
+          <div>
+            <h2 className="text-sm font-medium text-gray-700 mb-3">Scan Absent</h2>
+            <QRScanner sessionId={sessionId} onScanned={() => loadRecords(sessionId)} />
           </div>
         </div>
       )}

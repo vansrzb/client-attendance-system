@@ -13,15 +13,8 @@ export default function Dashboard() {
     getClasses().then(setClasses).catch(() => {});
   }, []);
 
-  const stats = [
-    { label: "Total Classes", value: classes.length, icon: BookOpen, color: "text-green-600", bg: "bg-green-50" },
-    { label: "Total Students", value: "—", icon: Users, color: "text-blue-600", bg: "bg-blue-50" },
-    { label: "Sessions Today", value: "—", icon: ScanLine, color: "text-violet-600", bg: "bg-violet-50" },
-  ];
-
   return (
-    <div className="space-y-6 px-4 sm:px-0">
-      {/* Header */}
+    <div className="space-y-6">
       <div>
         <h1 className="text-xl font-semibold text-gray-900">
           Good morning, {teacher?.full_name?.split(" ")[0]} 👋
@@ -32,7 +25,11 @@ export default function Dashboard() {
       {/* Stats — horizontal scroll on mobile, 3-col grid on sm+ */}
       <div className="-mx-4 sm:mx-0">
         <div className="flex gap-3 overflow-x-auto px-4 sm:px-0 pb-1 sm:pb-0 sm:grid sm:grid-cols-3 scrollbar-hide">
-          {stats.map(({ label, value, icon: Icon, color, bg }) => (
+          {[
+            { label: "Total Classes", value: classes.length, icon: BookOpen, color: "text-green-600", bg: "bg-green-50" },
+            { label: "Total Students", value: "—", icon: Users, color: "text-blue-600", bg: "bg-blue-50" },
+            { label: "Sessions Today", value: "—", icon: ScanLine, color: "text-violet-600", bg: "bg-violet-50" },
+          ].map(({ label, value, icon: Icon, color, bg }) => (
             <div
               key={label}
               className="flex-none w-[calc(50vw-24px)] sm:w-auto bg-white border border-gray-100 rounded-xl p-4 sm:p-5"
@@ -47,7 +44,6 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Classes */}
       <div>
         <h2 className="text-sm font-medium text-gray-700 mb-3">Your Classes</h2>
         {classes.length === 0 ? (

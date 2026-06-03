@@ -15,9 +15,9 @@ export default function AttendanceStats({ records }: Props) {
         { label: "Absent", value: absent, color: "text-red-500" },
         { label: "Rate", value: `${rate}%`, color: "text-gray-800" },
       ].map(({ label, value, color }) => (
-        <div key={label} className="bg-white border border-gray-100 rounded-lg px-4 py-3">
+        <div key={label} className="bg-white border border-gray-100 rounded-lg px-3 py-3 sm:px-4">
           <p className="text-xs text-gray-400 mb-1">{label}</p>
-          <p className={`text-2xl font-semibold ${color}`}>{value}</p>
+          <p className={`text-xl sm:text-2xl font-semibold ${color}`}>{value}</p>
         </div>
       ))}
     </div>
