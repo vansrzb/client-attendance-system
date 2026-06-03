@@ -2,7 +2,13 @@ import { useState } from "react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
 import { createClass } from "../../api/classApi";
 
 interface Props {
@@ -48,9 +54,8 @@ export default function ClassForm({ onCreated }: Props) {
             <SelectValue placeholder="Select type" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="lecture">Lecture</SelectItem>
-            <SelectItem value="lab">Lab</SelectItem>
-            <SelectItem value="seminar">Seminar</SelectItem>
+            <SelectItem value="advisory">Advisory</SelectItem>
+            <SelectItem value="regular">Regular</SelectItem>
           </SelectContent>
         </Select>
       </div>
