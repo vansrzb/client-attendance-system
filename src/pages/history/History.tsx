@@ -5,7 +5,7 @@ import type { Class } from "../../types/class";
 import type { AttendanceSession, AttendanceRecord } from "../../types/attendance";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select";
 import AttendanceTable from "../../components/attendance/AttendanceTable";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, ChevronLeft } from "lucide-react";
 
 export default function History() {
   const [classes, setClasses] = useState<Class[]>([]);
@@ -17,7 +17,11 @@ export default function History() {
   useEffect(() => { getClasses().then(setClasses); }, []);
 
   useEffect(() => {
-    if (selectedClass) getAttendanceHistory(selectedClass).then(setSessions);
+    if (selectedClass) {
+      getAttendanceHistory(selectedClass).then(setSessions);
+      setSelectedSession(null);
+      setRecords([]);
+    }
   }, [selectedClass]);
 
   const loadSession = async (session: AttendanceSession) => {
@@ -26,15 +30,20 @@ export default function History() {
     setRecords(data);
   };
 
+  const handleBack = () => {
+    setSelectedSession(null);
+    setRecords([]);
+  };
+
   return (
-    <div className="space-y-5">
+    <div className="space-y-5 px-4 sm:px-0">
       <div>
         <h1 className="text-xl font-semibold text-gray-900">History</h1>
         <p className="text-sm text-gray-400 mt-0.5">View past attendance sessions</p>
       </div>
 
       <Select onValueChange={(v) => setSelectedClass(Number(v))}>
-        <SelectTrigger className="w-56 h-9 text-sm">
+        <SelectTrigger className="w-full sm:w-56 h-9 text-sm">
           <SelectValue placeholder="Select a class" />
         </SelectTrigger>
         <SelectContent>
@@ -45,31 +54,74 @@ export default function History() {
       </Select>
 
       {sessions.length > 0 && (
-        <div className="grid grid-cols-4 gap-5">
-          <div className="col-span-1 space-y-1">
-            <p className="text-xs font-medium text-gray-500 mb-2">Sessions</p>
-            {sessions.map((s) => (
-              <button key={s.id} onClick={() => loadSession(s)}
-                className={`w-full text-left px-3 py-2 rounded-md text-sm flex items-center justify-between transition-colors ${
-                  selectedSession?.id === s.id
-                    ? "bg-green-50 text-green-700 font-medium"
-                    : "text-gray-600 hover:bg-gray-50"
-                }`}>
-                {new Date(s.attendance_date).toLocaleDateString("en-PH", {
-                  month: "short", day: "numeric", year: "numeric"
-                })}
-                <ChevronRight size={14} className="text-gray-300" />
-              </button>
-            ))}
-          </div>
-          <div className="col-span-3">
-            {selectedSession ? (
-              <AttendanceTable records={records} onUpdated={() => loadSession(selectedSession)} />
+        <>
+          {/* Mobile: step-through (session list → records) */}
+          <div className="sm:hidden">
+            {!selectedSession ? (
+              <div className="space-y-1">
+                <p className="text-xs font-medium text-gray-500 mb-2">Sessions</p>
+                {sessions.map((s) => (
+                  <button
+                    key={s.id}
+                    onClick={() => loadSession(s)}
+                    className="w-full text-left px-3 py-2.5 rounded-md text-sm flex items-center justify-between bg-white border border-gray-100 text-gray-700 active:bg-gray-50"
+                  >
+                    {new Date(s.attendance_date).toLocaleDateString("en-PH", {
+                      month: "short", day: "numeric", year: "numeric",
+                    })}
+                    <ChevronRight size={14} className="text-gray-300" />
+                  </button>
+                ))}
+              </div>
             ) : (
-              <p className="text-sm text-gray-400 pt-8 text-center">Select a session to view records.</p>
+              <div className="space-y-3">
+                <button
+                  onClick={handleBack}
+                  className="flex items-center gap-1 text-sm text-green-600 font-medium"
+                >
+                  <ChevronLeft size={15} />
+                  Sessions
+                </button>
+                <p className="text-xs text-gray-500">
+                  {new Date(selectedSession.attendance_date).toLocaleDateString("en-PH", {
+                    weekday: "long", month: "long", day: "numeric", year: "numeric",
+                  })}
+                </p>
+                <AttendanceTable records={records} onUpdated={() => loadSession(selectedSession)} />
+              </div>
             )}
           </div>
-        </div>
+
+          {/* Desktop: side-by-side */}
+          <div className="hidden sm:grid sm:grid-cols-4 gap-5">
+            <div className="col-span-1 space-y-1">
+              <p className="text-xs font-medium text-gray-500 mb-2">Sessions</p>
+              {sessions.map((s) => (
+                <button
+                  key={s.id}
+                  onClick={() => loadSession(s)}
+                  className={`w-full text-left px-3 py-2 rounded-md text-sm flex items-center justify-between transition-colors ${
+                    selectedSession?.id === s.id
+                      ? "bg-green-50 text-green-700 font-medium"
+                      : "text-gray-600 hover:bg-gray-50"
+                  }`}
+                >
+                  {new Date(s.attendance_date).toLocaleDateString("en-PH", {
+                    month: "short", day: "numeric", year: "numeric",
+                  })}
+                  <ChevronRight size={14} className="text-gray-300" />
+                </button>
+              ))}
+            </div>
+            <div className="col-span-3">
+              {selectedSession ? (
+                <AttendanceTable records={records} onUpdated={() => loadSession(selectedSession)} />
+              ) : (
+                <p className="text-sm text-gray-400 pt-8 text-center">Select a session to view records.</p>
+              )}
+            </div>
+          </div>
+        </>
       )}
 
       {selectedClass && sessions.length === 0 && (

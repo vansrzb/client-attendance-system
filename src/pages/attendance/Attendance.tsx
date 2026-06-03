@@ -40,15 +40,15 @@ export default function Attendance() {
   };
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-5 px-4 sm:px-0">
       <div>
         <h1 className="text-xl font-semibold text-gray-900">Attendance</h1>
         <p className="text-sm text-gray-400 mt-0.5">Start a session and scan QR codes</p>
       </div>
 
-      <div className="flex items-center gap-3">
+      <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 sm:items-center">
         <Select onValueChange={(v) => setSelectedClass(Number(v))}>
-          <SelectTrigger className="w-56 h-9 text-sm">
+          <SelectTrigger className="w-full sm:w-56 h-9 text-sm">
             <SelectValue placeholder="Select a class" />
           </SelectTrigger>
           <SelectContent>
@@ -57,8 +57,11 @@ export default function Attendance() {
             ))}
           </SelectContent>
         </Select>
-        <Button onClick={handleStart} disabled={!selectedClass || starting}
-          className="h-9 bg-green-600 hover:bg-green-700 text-white text-sm">
+        <Button
+          onClick={handleStart}
+          disabled={!selectedClass || starting}
+          className="h-9 w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white text-sm"
+        >
           {starting ? "Starting…" : "Start Session"}
         </Button>
       </div>
@@ -66,14 +69,16 @@ export default function Attendance() {
       {error && <p className="text-xs text-red-500">{error}</p>}
 
       {sessionId && (
-        <div className="grid grid-cols-3 gap-5">
-          <div className="col-span-2 space-y-4">
-            <AttendanceStats records={records} />
-            <AttendanceTable records={records} onUpdated={() => loadRecords(sessionId)} />
-          </div>
-          <div>
+        <div className="flex flex-col-reverse sm:grid sm:grid-cols-3 gap-5">
+          {/* Scanner — on mobile shows below stats/table */}
+          <div className="sm:col-span-1 sm:order-2">
             <h2 className="text-sm font-medium text-gray-700 mb-3">Scan Absent</h2>
             <QRScanner sessionId={sessionId} onScanned={() => loadRecords(sessionId)} />
+          </div>
+          {/* Stats + Table */}
+          <div className="sm:col-span-2 sm:order-1 space-y-4">
+            <AttendanceStats records={records} />
+            <AttendanceTable records={records} onUpdated={() => loadRecords(sessionId)} />
           </div>
         </div>
       )}
