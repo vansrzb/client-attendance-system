@@ -17,7 +17,7 @@ export default function Dashboard() {
     <div className="space-y-6">
       <div>
         <h1 className="text-xl font-semibold text-gray-900">
-          Good morning, {teacher?.full_name?.split(" ")[0]} 👋
+          Good day, {teacher?.full_name?.split(" ")[0]} 👋
         </h1>
         <p className="text-sm text-gray-400 mt-0.5">Here's what's happening today.</p>
       </div>
