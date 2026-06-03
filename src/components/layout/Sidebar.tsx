@@ -21,7 +21,6 @@ export default function Sidebar() {
     <>
       {/* Desktop sidebar */}
       <aside className="hidden sm:flex w-56 bg-white border-r border-gray-100 flex-col">
-        {/* Brand */}
         <div className="flex items-center gap-2 px-5 py-5 border-b border-gray-100">
           <div className="w-7 h-7 rounded-md bg-green-600 flex items-center justify-center">
             <GraduationCap size={15} className="text-white" />
@@ -31,7 +30,6 @@ export default function Sidebar() {
           </span>
         </div>
 
-        {/* Nav */}
         <nav className="flex-1 px-3 py-4 space-y-0.5">
           {links.map(({ to, label, icon: Icon }) => (
             <NavLink
@@ -68,7 +66,7 @@ export default function Sidebar() {
 
       {/* Mobile bottom nav */}
       <nav className="sm:hidden fixed bottom-0 inset-x-0 z-30 bg-white border-t border-gray-100 flex items-stretch">
-        {links.map(({ to, label, icon: Icon }) => (
+        {links.map(({ to, icon: Icon }) => (
           <NavLink
             key={to}
             to={to}
@@ -79,15 +77,13 @@ export default function Sidebar() {
             }
           >
             {({ isActive }) => (
-              <>
-                <span
-                  className={`p-1 rounded-lg transition-colors ${
-                    isActive ? "bg-green-50" : ""
-                  }`}
-                >
-                  <Icon size={18} />
-                </span>
-              </>
+              <span
+                className={`p-1 rounded-lg transition-colors ${
+                  isActive ? "bg-green-50" : ""
+                }`}
+              >
+                <Icon size={18} />
+              </span>
             )}
           </NavLink>
         ))}
