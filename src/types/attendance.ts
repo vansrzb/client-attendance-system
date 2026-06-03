@@ -10,6 +10,8 @@ export interface AttendanceSession {
   id: number;
   class_id: number;
   attendance_date: string;
+  status: "draft" | "finalized";
+  created_at: string;
 }
 
 export interface StartAttendancePayload {
