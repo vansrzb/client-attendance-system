@@ -1,10 +1,13 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/auth/Login";
+import Register from "./pages/auth/Register"; // <-- add this
+
 import Dashboard from "./pages/dashboard/Dashboard";
 import Classes from "./pages/classes/Classes";
 import Students from "./pages/students/Students";
 import Attendance from "./pages/attendance/Attendance";
 import History from "./pages/history/History";
+
 import AppLayout from "./components/layout/AppLayout";
 import ProtectedRoute from "./routes/ProtectedRoute";
 
@@ -12,8 +15,19 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
+        {/* Public routes */}
         <Route path="/login" element={<Login />} />
-        <Route path="/" element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
+        <Route path="/register" element={<Register />} />
+
+        {/* Protected routes */}
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute>
+              <AppLayout />
+            </ProtectedRoute>
+          }
+        >
           <Route index element={<Navigate to="/dashboard" replace />} />
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="classes" element={<Classes />} />
