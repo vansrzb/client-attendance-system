@@ -1,95 +1,108 @@
 import { useState } from "react";
-import { useAuth } from "../../hooks/useAuth";
+import { useNavigate } from "react-router-dom";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import { Label } from "../../components/ui/label";
 import { GraduationCap } from "lucide-react";
-import { Link } from "react-router-dom";
+import { register as registerApi } from "../../api/authApi";
 
-export default function Login() {
-  const { login, loading, error } = useAuth();
+export default function Register() {
+  const navigate = useNavigate();
+
+  const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    login({ email, password });
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      await registerApi({
+        full_name: fullName,
+        email,
+        password,
+      });
+
+      navigate("/login");
+    } catch (err: any) {
+      setError(err.response?.data?.message || "Registration failed");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4 py-8">
       <div className="bg-white border border-gray-100 rounded-xl p-6 sm:p-8 w-full max-w-sm shadow-sm">
         
-        {/* HEADER */}
         <div className="flex items-center gap-2 mb-6">
-          <div className="w-8 h-8 bg-green-600 rounded-lg flex items-center justify-center flex-shrink-0">
+          <div className="w-8 h-8 bg-green-600 rounded-lg flex items-center justify-center">
             <GraduationCap size={16} className="text-white" />
           </div>
           <span className="font-semibold text-gray-800">AttendTrack</span>
         </div>
 
         <h1 className="text-xl font-semibold text-gray-900 mb-1">
-          Welcome back
+          Create account
         </h1>
         <p className="text-sm text-gray-400 mb-6">
-          Sign in to your teacher account
+          Register as a teacher
         </p>
 
-        {/* FORM */}
         <form onSubmit={handleSubmit} className="space-y-4">
-          
-          {/* EMAIL */}
+
+          <div className="space-y-1.5">
+            <Label className="text-xs text-gray-500">Full Name</Label>
+            <Input
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              className="h-10 text-sm"
+              required
+            />
+          </div>
+
           <div className="space-y-1.5">
             <Label className="text-xs text-gray-500">Email</Label>
             <Input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@school.edu"
-              className="h-10 text-sm w-full"
-              autoComplete="email"
+              className="h-10 text-sm"
               required
             />
           </div>
 
-          {/* PASSWORD */}
           <div className="space-y-1.5">
             <Label className="text-xs text-gray-500">Password</Label>
             <Input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              className="h-10 text-sm w-full"
-              autoComplete="current-password"
+              className="h-10 text-sm"
               required
             />
           </div>
 
-          {/* ERROR */}
           {error && (
-            <p className="text-xs text-red-500 leading-snug">{error}</p>
+            <p className="text-xs text-red-500">{error}</p>
           )}
 
-          {/* BUTTON */}
           <Button
             type="submit"
             disabled={loading}
-            className="w-full h-10 bg-green-600 hover:bg-green-700 active:bg-green-800 text-white text-sm touch-manipulation"
+            className="w-full h-10 bg-green-600 text-white text-sm"
           >
-            {loading ? "Signing in…" : "Sign In"}
+            {loading ? "Creating..." : "Create Account"}
           </Button>
         </form>
 
-        {/* REGISTER LINK */}
-        <p className="text-xs text-gray-400 text-center mt-4">
-          Don’t have an account?{" "}
-          <Link
-            to="/register"
-            className="text-green-600 hover:underline font-medium"
-          >
-            Create one
-          </Link>
+        <p className="text-xs text-gray-400 mt-4 text-center">
+          Already have an account? Go to login
         </p>
 
       </div>
