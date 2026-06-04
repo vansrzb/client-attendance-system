@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { getClasses } from "../../api/classApi";
+import { getStudentsByClass } from "../../api/studentApi";
+import { getAttendanceHistory } from "../../api/attendanceApi";
 import type { Class } from "../../types/class";
 import { BookOpen, Users, ScanLine } from "lucide-react";
 import { useAuth } from "../../hooks/useAuth";
@@ -8,9 +10,40 @@ export default function Dashboard() {
   const { getTeacher } = useAuth();
   const teacher = getTeacher();
   const [classes, setClasses] = useState<Class[]>([]);
+  const [totalStudents, setTotalStudents] = useState<number | null>(null);
+  const [sessionsToday, setSessionsToday] = useState<number | null>(null);
 
   useEffect(() => {
-    getClasses().then(setClasses).catch(() => {});
+    getClasses()
+      .then(async (classList) => {
+        setClasses(classList);
+
+        const today = new Date().toDateString();
+
+        // Fetch students and sessions for all classes in parallel
+        const results = await Promise.all(
+          classList.map((cls) =>
+            Promise.all([
+              getStudentsByClass(cls.id),
+              getAttendanceHistory(cls.id),
+            ])
+          )
+        );
+
+        let studentCount = 0;
+        let sessionCount = 0;
+
+        for (const [students, sessions] of results) {
+          studentCount += students.length;
+          sessionCount += sessions.filter(
+            (s) => new Date(s.created_at).toDateString() === today
+          ).length;
+        }
+
+        setTotalStudents(studentCount);
+        setSessionsToday(sessionCount);
+      })
+      .catch(() => {});
   }, []);
 
   return (
@@ -22,13 +55,13 @@ export default function Dashboard() {
         <p className="text-sm text-gray-400 mt-0.5">Here's what's happening today.</p>
       </div>
 
-      {/* Stats — horizontal scroll on mobile, 3-col grid on sm+ */}
+      {/* Stats */}
       <div className="-mx-4 sm:mx-0">
         <div className="flex gap-3 overflow-x-auto px-4 sm:px-0 pb-1 sm:pb-0 sm:grid sm:grid-cols-3 scrollbar-hide">
           {[
             { label: "Total Classes", value: classes.length, icon: BookOpen, color: "text-green-600", bg: "bg-green-50" },
-            { label: "Total Students", value: "—", icon: Users, color: "text-blue-600", bg: "bg-blue-50" },
-            { label: "Sessions Today", value: "—", icon: ScanLine, color: "text-violet-600", bg: "bg-violet-50" },
+            { label: "Total Students", value: totalStudents, icon: Users, color: "text-blue-600", bg: "bg-blue-50" },
+            { label: "Sessions Today", value: sessionsToday, icon: ScanLine, color: "text-violet-600", bg: "bg-violet-50" },
           ].map(({ label, value, icon: Icon, color, bg }) => (
             <div
               key={label}
@@ -37,7 +70,13 @@ export default function Dashboard() {
               <div className={`w-9 h-9 ${bg} rounded-lg flex items-center justify-center mb-3`}>
                 <Icon size={16} className={color} />
               </div>
-              <p className="text-2xl font-semibold text-gray-900">{value}</p>
+              <p className="text-2xl font-semibold text-gray-900">
+                {value === null ? (
+                  <span className="inline-block w-6 h-6 rounded bg-gray-100 animate-pulse" />
+                ) : (
+                  value
+                )}
+              </p>
               <p className="text-xs text-gray-400 mt-0.5">{label}</p>
             </div>
           ))}

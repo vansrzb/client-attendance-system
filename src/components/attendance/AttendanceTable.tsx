@@ -8,7 +8,18 @@ interface Props {
   onUpdated: () => void;
 }
 
+function sortByStudentNumber(list: AttendanceRecord[]): AttendanceRecord[] {
+  return [...list].sort((a, b) =>
+    a.student_number.localeCompare(b.student_number, undefined, {
+      numeric: true,
+      sensitivity: "base",
+    })
+  );
+}
+
 export default function AttendanceTable({ records, onUpdated }: Props) {
+  const sorted = sortByStudentNumber(records);
+
   const toggle = async (record: AttendanceRecord) => {
     const newStatus = record.status === "present" ? "absent" : "present";
     await updateAttendanceStatus({ attendance_id: record.id, status: newStatus });
@@ -28,7 +39,7 @@ export default function AttendanceTable({ records, onUpdated }: Props) {
 
       {/* Mobile: card list */}
       <div className="sm:hidden space-y-2">
-        {records.map((r) => (
+        {sorted.map((r) => (
           <div key={r.id} className="bg-white border border-gray-100 rounded-lg px-4 py-3 flex items-center justify-between gap-3">
             <div className="min-w-0">
               <p className="text-sm font-medium text-gray-800 truncate">{r.full_name}</p>
@@ -73,7 +84,7 @@ export default function AttendanceTable({ records, onUpdated }: Props) {
             </tr>
           </thead>
           <tbody>
-            {records.map((r) => (
+            {sorted.map((r) => (
               <tr key={r.id} className="border-b border-gray-50 hover:bg-gray-50">
                 <td className="px-4 py-3 font-mono text-xs text-gray-500">{r.student_number}</td>
                 <td className="px-4 py-3 font-medium text-gray-800">{r.full_name}</td>
