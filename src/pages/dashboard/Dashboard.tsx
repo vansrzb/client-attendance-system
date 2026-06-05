@@ -1,15 +1,34 @@
 import { useEffect, useState } from "react";
 import { getClasses } from "../../api/classApi";
 import { getStudentsByClass } from "../../api/studentApi";
-import { getAttendanceHistory, getAttendanceSession } from "../../api/attendanceApi";
+import {
+  getAttendanceHistory,
+  getAttendanceSession,
+} from "../../api/attendanceApi";
 import type { Class } from "../../types/class";
 import type { AttendanceSession } from "../../types/attendance";
-import { BookOpen, Users, ScanLine, FileText, Sheet, Loader2 } from "lucide-react";
+import {
+  BookOpen,
+  Users,
+  ScanLine,
+  FileText,
+  Sheet,
+  Loader2,
+} from "lucide-react";
 import { useAuth } from "../../hooks/useAuth";
 import { Button } from "../../components/ui/button";
 import {
-  BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
-  Legend, CartesianGrid, PieChart, Pie, Cell,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  Legend,
+  CartesianGrid,
+  PieChart,
+  Pie,
+  Cell,
 } from "recharts";
 
 // ─── types ───────────────────────────────────────────────────────────────────
@@ -33,7 +52,11 @@ function getLast7Days(): { label: string; dateStr: string }[] {
     const d = new Date();
     d.setDate(d.getDate() - (6 - i));
     return {
-      label: d.toLocaleDateString("en-PH", { weekday: "short", month: "short", day: "numeric" }),
+      label: d.toLocaleDateString("en-PH", {
+        weekday: "short",
+        month: "short",
+        day: "numeric",
+      }),
       dateStr: d.toDateString(),
     };
   });
@@ -64,26 +87,36 @@ export default function Dashboard() {
 
         const results = await Promise.all(
           classList.map((cls) =>
-            Promise.all([getStudentsByClass(cls.id), getAttendanceHistory(cls.id)])
-          )
+            Promise.all([
+              getStudentsByClass(cls.id),
+              getAttendanceHistory(cls.id),
+            ]),
+          ),
         );
 
         let studentCount = 0;
         let sessionCount = 0;
         const stats: ClassStat[] = [];
         const weekMap: Record<string, { present: number; absent: number }> = {};
-        for (const { dateStr } of last7) weekMap[dateStr] = { present: 0, absent: 0 };
+        for (const { dateStr } of last7)
+          weekMap[dateStr] = { present: 0, absent: 0 };
 
         for (let i = 0; i < classList.length; i++) {
           const [students, sessions] = results[i];
           studentCount += students.length;
           sessionCount += sessions.filter(
-            (s) => new Date(s.created_at).toDateString() === today
+            (s) => new Date(s.created_at).toDateString() === today,
           ).length;
-          stats.push({ cls: classList[i], studentCount: students.length, sessions });
+          stats.push({
+            cls: classList[i],
+            studentCount: students.length,
+            sessions,
+          });
 
           const recentSessions = sessions.filter((s) =>
-            last7.some((d) => new Date(s.attendance_date).toDateString() === d.dateStr)
+            last7.some(
+              (d) => new Date(s.attendance_date).toDateString() === d.dateStr,
+            ),
           );
 
           for (const session of recentSessions) {
@@ -91,8 +124,12 @@ export default function Dashboard() {
               const records = await getAttendanceSession(session.id);
               const dayKey = new Date(session.attendance_date).toDateString();
               if (weekMap[dayKey]) {
-                weekMap[dayKey].present += records.filter((r) => r.status === "present").length;
-                weekMap[dayKey].absent += records.filter((r) => r.status === "absent").length;
+                weekMap[dayKey].present += records.filter(
+                  (r) => r.status === "present",
+                ).length;
+                weekMap[dayKey].absent += records.filter(
+                  (r) => r.status === "absent",
+                ).length;
               }
             } catch {}
           }
@@ -122,26 +159,41 @@ export default function Dashboard() {
 
   const handleExportPDF = () => {
     const today = new Date().toLocaleDateString("en-PH", {
-      weekday: "long", year: "numeric", month: "long", day: "numeric",
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
     });
 
-    const classRows = classStats.map((s, i) => `
+    const classRows = classStats
+      .map(
+        (s, i) => `
       <tr class="${i % 2 === 0 ? "even" : ""}">
         <td>${s.cls.class_name}</td>
         <td class="center capitalize">${s.cls.class_type}</td>
         <td class="center">${s.studentCount}</td>
-        <td class="center">${s.sessions.filter(
-          (x) => new Date(x.created_at).toDateString() === new Date().toDateString()
-        ).length}</td>
-      </tr>`).join("");
+        <td class="center">${
+          s.sessions.filter(
+            (x) =>
+              new Date(x.created_at).toDateString() ===
+              new Date().toDateString(),
+          ).length
+        }</td>
+      </tr>`,
+      )
+      .join("");
 
-    const weekRows = weeklyData.map((w, i) => `
+    const weekRows = weeklyData
+      .map(
+        (w, i) => `
       <tr class="${i % 2 === 0 ? "even" : ""}">
         <td>${w.day}</td>
         <td class="center present">${w.present}</td>
         <td class="center absent">${w.absent}</td>
         <td class="center">${w.present + w.absent}</td>
-      </tr>`).join("");
+      </tr>`,
+      )
+      .join("");
 
     const html = `<!DOCTYPE html><html><head><meta charset="utf-8"/>
 <title>Dashboard Report</title>
@@ -205,7 +257,11 @@ export default function Dashboard() {
     const wb = XLSX.utils.book_new();
 
     const summary = [
-      ["Dashboard Report", "", `Generated: ${new Date().toLocaleString("en-PH")}`],
+      [
+        "Dashboard Report",
+        "",
+        `Generated: ${new Date().toLocaleString("en-PH")}`,
+      ],
       [],
       ["Metric", "Value"],
       ["Total Classes", classes.length],
@@ -221,24 +277,43 @@ export default function Dashboard() {
     const classData = [
       ["Class", "Type", "Students", "Sessions Today", "Total Sessions"],
       ...classStats.map((s) => [
-        s.cls.class_name, s.cls.class_type, s.studentCount,
-        s.sessions.filter((x) => new Date(x.created_at).toDateString() === new Date().toDateString()).length,
+        s.cls.class_name,
+        s.cls.class_type,
+        s.studentCount,
+        s.sessions.filter(
+          (x) =>
+            new Date(x.created_at).toDateString() === new Date().toDateString(),
+        ).length,
         s.sessions.length,
       ]),
     ];
     const wsClasses = XLSX.utils.aoa_to_sheet(classData);
-    wsClasses["!cols"] = [{ wch: 28 }, { wch: 14 }, { wch: 12 }, { wch: 16 }, { wch: 16 }];
+    wsClasses["!cols"] = [
+      { wch: 28 },
+      { wch: 14 },
+      { wch: 12 },
+      { wch: 16 },
+      { wch: 16 },
+    ];
     XLSX.utils.book_append_sheet(wb, wsClasses, "Classes");
 
     const weekData = [
       ["Day", "Present", "Absent", "Total"],
-      ...weeklyData.map((w) => [w.day, w.present, w.absent, w.present + w.absent]),
+      ...weeklyData.map((w) => [
+        w.day,
+        w.present,
+        w.absent,
+        w.present + w.absent,
+      ]),
     ];
     const wsWeek = XLSX.utils.aoa_to_sheet(weekData);
     wsWeek["!cols"] = [{ wch: 28 }, { wch: 12 }, { wch: 12 }, { wch: 12 }];
     XLSX.utils.book_append_sheet(wb, wsWeek, "Last 7 Days");
 
-    XLSX.writeFile(wb, `dashboard_report_${new Date().toISOString().slice(0, 10)}.xlsx`);
+    XLSX.writeFile(
+      wb,
+      `dashboard_report_${new Date().toISOString().slice(0, 10)}.xlsx`,
+    );
   };
 
   const handleExport = async (type: "pdf" | "excel") => {
@@ -262,14 +337,15 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-4">
-
       {/* Header + export */}
       <div className="flex items-start justify-between gap-3">
         <div>
           <h1 className="text-xl font-semibold text-gray-900">
             Good day, {teacher?.full_name?.split(" ")[0]} 👋
           </h1>
-          <p className="text-sm text-gray-400 mt-0.5">Here's what's happening today.</p>
+          <p className="text-sm text-gray-400 mt-0.5">
+            Here's what's happening today.
+          </p>
         </div>
         <div className="flex items-center gap-2 shrink-0">
           <Button
@@ -279,9 +355,11 @@ export default function Dashboard() {
             onClick={() => handleExport("pdf")}
             disabled={exporting !== null || loadingChart}
           >
-            {exporting === "pdf"
-              ? <Loader2 size={13} className="animate-spin" />
-              : <FileText size={13} className="text-red-500" />}
+            {exporting === "pdf" ? (
+              <Loader2 size={13} className="animate-spin" />
+            ) : (
+              <FileText size={13} className="text-red-500" />
+            )}
             PDF
           </Button>
           <Button
@@ -291,9 +369,11 @@ export default function Dashboard() {
             onClick={() => handleExport("excel")}
             disabled={exporting !== null || loadingChart}
           >
-            {exporting === "excel"
-              ? <Loader2 size={13} className="animate-spin" />
-              : <Sheet size={13} className="text-green-600" />}
+            {exporting === "excel" ? (
+              <Loader2 size={13} className="animate-spin" />
+            ) : (
+              <Sheet size={13} className="text-green-600" />
+            )}
             Excel
           </Button>
         </div>
@@ -303,21 +383,43 @@ export default function Dashboard() {
       <div className="-mx-4 sm:mx-0">
         <div className="flex gap-3 overflow-x-auto px-4 sm:px-0 pb-1 sm:pb-0 sm:grid sm:grid-cols-3 scrollbar-hide">
           {[
-            { label: "Total Classes", value: classes.length, icon: BookOpen, color: "text-green-600", bg: "bg-green-50" },
-            { label: "Total Students", value: totalStudents, icon: Users, color: "text-blue-600", bg: "bg-blue-50" },
-            { label: "Sessions Today", value: sessionsToday, icon: ScanLine, color: "text-violet-600", bg: "bg-violet-50" },
+            {
+              label: "Total Classes",
+              value: classes.length,
+              icon: BookOpen,
+              color: "text-green-600",
+              bg: "bg-green-50",
+            },
+            {
+              label: "Total Students",
+              value: totalStudents,
+              icon: Users,
+              color: "text-blue-600",
+              bg: "bg-blue-50",
+            },
+            {
+              label: "Sessions Today",
+              value: sessionsToday,
+              icon: ScanLine,
+              color: "text-violet-600",
+              bg: "bg-violet-50",
+            },
           ].map(({ label, value, icon: Icon, color, bg }) => (
             <div
               key={label}
               className="flex-none w-[calc(50vw-24px)] sm:w-auto bg-white border border-gray-100 rounded-xl p-4"
             >
-              <div className={`w-8 h-8 ${bg} rounded-lg flex items-center justify-center mb-2.5`}>
+              <div
+                className={`w-8 h-8 ${bg} rounded-lg flex items-center justify-center mb-2.5`}
+              >
                 <Icon size={15} className={color} />
               </div>
               <p className="text-2xl font-semibold text-gray-900">
-                {value === null
-                  ? <span className="inline-block w-6 h-5 rounded bg-gray-100 animate-pulse" />
-                  : value}
+                {value === null ? (
+                  <span className="inline-block w-6 h-5 rounded bg-gray-100 animate-pulse" />
+                ) : (
+                  value
+                )}
               </p>
               <p className="text-xs text-gray-400 mt-0.5">{label}</p>
             </div>
@@ -327,10 +429,11 @@ export default function Dashboard() {
 
       {/* Charts row — bar left, pie right */}
       <div className="grid grid-cols-1 sm:grid-cols-5 gap-3">
-
         {/* Bar chart — takes 3/5 on desktop */}
         <div className="sm:col-span-3 bg-white border border-gray-100 rounded-xl p-4">
-          <p className="text-sm font-medium text-gray-700 mb-3">Attendance — Last 7 Days</p>
+          <p className="text-sm font-medium text-gray-700 mb-3">
+            Attendance — Last 7 Days
+          </p>
           {loadingChart ? (
             <div className="h-44 flex items-center justify-center">
               <Loader2 size={18} className="animate-spin text-gray-300" />
@@ -338,7 +441,11 @@ export default function Dashboard() {
           ) : (
             <ResponsiveContainer width="100%" height={176}>
               <BarChart data={weeklyData} barSize={12} barGap={3}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" vertical={false} />
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  stroke="#f3f4f6"
+                  vertical={false}
+                />
                 <XAxis
                   dataKey="day"
                   tick={{ fontSize: 9, fill: "#9ca3af" }}
@@ -354,12 +461,31 @@ export default function Dashboard() {
                   width={24}
                 />
                 <Tooltip
-                  contentStyle={{ fontSize: 11, borderRadius: 8, border: "1px solid #f3f4f6", boxShadow: "none" }}
+                  contentStyle={{
+                    fontSize: 11,
+                    borderRadius: 8,
+                    border: "1px solid #f3f4f6",
+                    boxShadow: "none",
+                  }}
                   cursor={{ fill: "#f9fafb" }}
                 />
-                <Legend iconType="circle" iconSize={6} wrapperStyle={{ fontSize: 10, paddingTop: 8 }} />
-                <Bar dataKey="present" name="Present" fill="#16a34a" radius={[3, 3, 0, 0]} />
-                <Bar dataKey="absent" name="Absent" fill="#fca5a5" radius={[3, 3, 0, 0]} />
+                <Legend
+                  iconType="circle"
+                  iconSize={6}
+                  wrapperStyle={{ fontSize: 10, paddingTop: 8 }}
+                />
+                <Bar
+                  dataKey="present"
+                  name="Present"
+                  fill="#16a34a"
+                  radius={[3, 3, 0, 0]}
+                />
+                <Bar
+                  dataKey="absent"
+                  name="Absent"
+                  fill="#fca5a5"
+                  radius={[3, 3, 0, 0]}
+                />
               </BarChart>
             </ResponsiveContainer>
           )}
@@ -367,7 +493,9 @@ export default function Dashboard() {
 
         {/* Pie chart — takes 2/5 on desktop */}
         <div className="sm:col-span-2 bg-white border border-gray-100 rounded-xl p-4 flex flex-col">
-          <p className="text-sm font-medium text-gray-700 mb-3">7-Day Overview</p>
+          <p className="text-sm font-medium text-gray-700 mb-3">
+            7-Day Overview
+          </p>
           {loadingChart ? (
             <div className="flex-1 flex items-center justify-center h-44">
               <Loader2 size={18} className="animate-spin text-gray-300" />
@@ -394,8 +522,16 @@ export default function Dashboard() {
                     ))}
                   </Pie>
                   <Tooltip
-                    contentStyle={{ fontSize: 11, borderRadius: 8, border: "1px solid #f3f4f6", boxShadow: "none" }}
-                    formatter={(value: number) => [`${value} (${grandTotal > 0 ? Math.round((value / grandTotal) * 100) : 0}%)`, ""]}
+                    contentStyle={{
+                      fontSize: 11,
+                      borderRadius: 8,
+                      border: "1px solid #f3f4f6",
+                      boxShadow: "none",
+                    }}
+                    formatter={(value: number) => [
+                      `${value} (${grandTotal > 0 ? Math.round((value / grandTotal) * 100) : 0}%)`,
+                      "",
+                    ]}
                   />
                 </PieChart>
               </ResponsiveContainer>
@@ -408,12 +544,17 @@ export default function Dashboard() {
                       style={{ background: PIE_COLORS[idx] }}
                     />
                     <span className="text-xs text-gray-500">{entry.name}</span>
-                    <span className="text-xs font-medium text-gray-700">{entry.value}</span>
+                    <span className="text-xs font-medium text-gray-700">
+                      {entry.value}
+                    </span>
                   </div>
                 ))}
               </div>
               <p className="text-xs text-gray-400 mt-1.5">
-                {grandTotal > 0 ? Math.round((totalPresent / grandTotal) * 100) : 0}% attendance rate
+                {grandTotal > 0
+                  ? Math.round((totalPresent / grandTotal) * 100)
+                  : 0}
+                % attendance rate
               </p>
             </div>
           )}
@@ -424,29 +565,52 @@ export default function Dashboard() {
       <div>
         <h2 className="text-sm font-medium text-gray-700 mb-2">Your Classes</h2>
         {classes.length === 0 ? (
-          <p className="text-sm text-gray-400">No classes yet. Go to Classes to create one.</p>
+          <p className="text-sm text-gray-400">
+            No classes yet. Go to Classes to create one.
+          </p>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5">
             {classStats.map(({ cls, studentCount, sessions }) => {
               const todaySessions = sessions.filter(
-                (s) => new Date(s.created_at).toDateString() === new Date().toDateString()
+                (s) =>
+                  new Date(s.created_at).toDateString() ===
+                  new Date().toDateString(),
               ).length;
               return (
-                <div key={cls.id} className="bg-white border border-gray-100 rounded-lg px-3 py-3">
-                  <p className="text-sm font-medium text-gray-800 truncate">{cls.class_name}</p>
-                  <p className="text-xs text-gray-400 capitalize mt-0.5">{cls.class_type}</p>
-                  <div className="flex gap-3 mt-2.5 pt-2.5 border-t border-gray-50">
+                <div
+                  key={cls.id}
+                  className="bg-white border border-gray-100 rounded-lg p-3"
+                >
+                  <p className="text-xs font-medium text-gray-800 truncate leading-tight">
+                    {cls.class_name}
+                  </p>
+                  <p className="text-[10px] text-gray-400 capitalize mt-0.5">
+                    {cls.class_type}
+                  </p>
+                  <div className="grid grid-cols-3 gap-1 mt-2 pt-2 border-t border-gray-50 text-center">
                     <div>
-                      <p className="text-sm font-semibold text-gray-800">{studentCount}</p>
-                      <p className="text-xs text-gray-400">Students</p>
+                      <p className="text-sm font-semibold text-gray-800">
+                        {studentCount}
+                      </p>
+                      <p className="text-[10px] text-gray-400 leading-tight">
+                        Students
+                      </p>
                     </div>
                     <div>
-                      <p className="text-sm font-semibold text-gray-800">{sessions.length}</p>
-                      <p className="text-xs text-gray-400">Sessions</p>
+                      <p className="text-sm font-semibold text-gray-800">
+                        {sessions.length}
+                      </p>
+                      <p className="text-[10px] text-gray-400 leading-tight">
+                        Sessions
+                      </p>
                     </div>
                     <div>
-                      <p className="text-sm font-semibold text-gray-800">{todaySessions}</p>
-                      <p className="text-xs text-gray-400">Today</p>
+                      <p className="text-sm font-semibold text-gray-800">
+                        {todaySessions}
+                      </p>
+                      <p className="text-[10px] text-gray-400 leading-tight">
+                        Today
+                      </p>
                     </div>
                   </div>
                 </div>
