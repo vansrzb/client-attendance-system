@@ -528,7 +528,7 @@ export default function Dashboard() {
                       border: "1px solid #f3f4f6",
                       boxShadow: "none",
                     }}
-                    formatter={(value, name) => {
+                    formatter={(value) => {
                       const num = typeof value === "number" ? value : 0;
 
                       return [
