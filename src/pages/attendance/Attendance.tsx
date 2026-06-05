@@ -162,10 +162,6 @@ export default function Attendance() {
     }
   };
 
-  const handlePrint = () => {
-    window.print();
-  };
-
   const selectedClassName = useMemo(() => {
     return classes.find((c) => c.id === selectedClass)?.class_name || "";
   }, [classes, selectedClass]);

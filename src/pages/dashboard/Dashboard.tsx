@@ -528,10 +528,14 @@ export default function Dashboard() {
                       border: "1px solid #f3f4f6",
                       boxShadow: "none",
                     }}
-                    formatter={(value: number) => [
-                      `${value} (${grandTotal > 0 ? Math.round((value / grandTotal) * 100) : 0}%)`,
-                      "",
-                    ]}
+                    formatter={(value, name) => {
+                      const num = typeof value === "number" ? value : 0;
+
+                      return [
+                        `${num} (${grandTotal > 0 ? Math.round((num / grandTotal) * 100) : 0}%)`,
+                        "",
+                      ];
+                    }}
                   />
                 </PieChart>
               </ResponsiveContainer>
