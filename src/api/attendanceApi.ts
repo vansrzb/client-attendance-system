@@ -5,6 +5,7 @@ import type {
   StartAttendancePayload,
   ScanAbsentPayload,
   UpdateAttendancePayload,
+  AttendanceSummary
 } from "../types/attendance";
 
 export const startAttendance = (
@@ -46,6 +47,24 @@ export const getAttendanceHistory = (
   api
     .get<AttendanceSession[]>(
       `/attendance/history/${classId}`
+    )
+    .then((r) => r.data);
+
+export const getMonthlyAttendanceSummary = (
+  classId: number
+) =>
+  api
+    .get<AttendanceSummary[]>(
+      `/attendance/summary/monthly/${classId}`
+    )
+    .then((r) => r.data);
+
+export const getYearlyAttendanceSummary = (
+  classId: number
+) =>
+  api
+    .get<AttendanceSummary[]>(
+      `/attendance/summary/yearly/${classId}`
     )
     .then((r) => r.data);
 

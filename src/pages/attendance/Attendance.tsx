@@ -175,7 +175,7 @@ export default function Attendance() {
       <div>
         <h1 className="text-xl font-semibold text-gray-900">Attendance</h1>
         <p className="text-sm text-gray-400 mt-0.5">
-          Start sessions, reopen drafts, finalize, and print history
+          Start sessions, reopen drafts and finalize.
         </p>
       </div>
 
@@ -296,17 +296,6 @@ export default function Attendance() {
                         >
                           {s.status}
                         </Badge>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          className="h-7 text-xs"
-                          onClick={() => {
-                            handleOpenSession(s);
-                            setTimeout(() => window.print(), 250);
-                          }}
-                        >
-                          Print
-                        </Button>
                       </div>
                     </div>
                   ))
@@ -329,25 +318,6 @@ export default function Attendance() {
                 </div>
 
                 <div className="flex flex-wrap gap-2">
-                  <Badge
-                    variant="outline"
-                    className={
-                      currentSession.status === "finalized"
-                        ? "bg-blue-50 text-blue-700 border-blue-200"
-                        : "bg-yellow-50 text-yellow-700 border-yellow-200"
-                    }
-                  >
-                    {currentSession.status}
-                  </Badge>
-
-                  <Button
-                    variant="outline"
-                    className="h-8 text-xs"
-                    onClick={handlePrint}
-                  >
-                    Print
-                  </Button>
-
                   <Button
                     className="h-8 text-xs bg-blue-600 hover:bg-blue-700 text-white"
                     onClick={handleFinalize}

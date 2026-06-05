@@ -27,3 +27,12 @@ export interface UpdateAttendancePayload {
   attendance_id: number;
   status: "present" | "absent";
 }
+
+export interface AttendanceSummary {
+  period: string; // "2026-06" for monthly, "2026" for yearly
+  total_sessions: number;
+  total_records: number;
+  present_count: number;
+  late_count: number;
+  absent_count: number;
+}
