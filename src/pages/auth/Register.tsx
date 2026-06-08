@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import { Label } from "../../components/ui/label";
@@ -37,74 +37,112 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4 py-8">
-      <div className="bg-white border border-gray-100 rounded-xl p-6 sm:p-8 w-full max-w-sm shadow-sm">
-        
-        <div className="flex items-center gap-2 mb-6">
-          <div className="w-8 h-8 bg-green-600 rounded-lg flex items-center justify-center">
-            <GraduationCap size={16} className="text-white" />
+    <div className="min-h-screen bg-green-50 flex items-center justify-center px-4">
+      <div className="w-full max-w-md bg-white rounded-2xl border border-green-100 shadow-lg p-8">
+
+        {/* Logo */}
+        <div className="flex items-center gap-3 mb-8">
+          <div className="w-10 h-10 bg-green-600 rounded-xl flex items-center justify-center">
+            <GraduationCap size={20} className="text-white" />
           </div>
-          <span className="font-semibold text-gray-800">AttendTrack</span>
+
+          <div>
+            <h2 className="font-bold text-lg text-gray-900">
+              AttendTrack
+            </h2>
+            <p className="text-xs text-gray-500">
+              QR Attendance System
+            </p>
+          </div>
         </div>
 
-        <h1 className="text-xl font-semibold text-gray-900 mb-1">
-          Create account
-        </h1>
-        <p className="text-sm text-gray-400 mb-6">
-          Register as a teacher
-        </p>
+        {/* Header */}
+        <div className="mb-6">
+          <p className="text-green-600 text-xs font-semibold uppercase tracking-wider mb-2">
+            Teacher Registration
+          </p>
 
+          <h1 className="text-3xl font-bold text-gray-900">
+            Create Account
+          </h1>
+
+          <p className="text-gray-500 text-sm mt-2">
+            Create your teacher account and start managing attendance.
+          </p>
+        </div>
+
+        {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
 
-          <div className="space-y-1.5">
-            <Label className="text-xs text-gray-500">Full Name</Label>
+          <div>
+            <Label className="text-sm mb-2 block">
+              Full Name
+            </Label>
+
             <Input
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
-              className="h-10 text-sm"
+              placeholder="Juan Dela Cruz"
+              className="h-11"
               required
             />
           </div>
 
-          <div className="space-y-1.5">
-            <Label className="text-xs text-gray-500">Email</Label>
+          <div>
+            <Label className="text-sm mb-2 block">
+              Email Address
+            </Label>
+
             <Input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="h-10 text-sm"
+              placeholder="teacher@example.com"
+              className="h-11"
               required
             />
           </div>
 
-          <div className="space-y-1.5">
-            <Label className="text-xs text-gray-500">Password</Label>
+          <div>
+            <Label className="text-sm mb-2 block">
+              Password
+            </Label>
+
             <Input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="h-10 text-sm"
+              placeholder="••••••••"
+              className="h-11"
               required
             />
           </div>
 
           {error && (
-            <p className="text-xs text-red-500">{error}</p>
+            <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-sm text-red-600">
+              {error}
+            </div>
           )}
 
           <Button
             type="submit"
             disabled={loading}
-            className="w-full h-10 bg-green-600 text-white text-sm"
+            className="w-full h-11 bg-green-600 hover:bg-green-700 text-white rounded-xl"
           >
-            {loading ? "Creating..." : "Create Account"}
+            {loading ? "Creating Account..." : "Create Account"}
           </Button>
         </form>
 
-        <p className="text-xs text-gray-400 mt-4 text-center">
-          Already have an account? Go to login
-        </p>
-
+        {/* Footer */}
+        <div className="text-center mt-6 text-sm text-gray-500">
+          Already have an account?{" "}
+          <Link
+            to="/login"
+            className="text-green-600 hover:text-green-700 font-medium"
+          >
+            Sign In
+          </Link>
+        </div>
       </div>
     </div>
   );
