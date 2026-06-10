@@ -17,4 +17,4 @@ export interface UpdateStudentPayload {
 }
 
 export const updateStudent = (id: number, data: UpdateStudentPayload) =>
-  api.put<Student>(`/students/${id}`, data).then((r) => r.data);
+  api.put(`/students/${id}`, data).then((r) => r.data);
