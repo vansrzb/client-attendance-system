@@ -6,7 +6,12 @@ export interface Teacher {
 
 export interface AuthResponse {
   token: string;
-  teacher: Teacher;
+  role: "admin" | "teacher";
+  user: {
+    id: number;
+    email?: string;
+    full_name?: string;
+  };
 }
 
 export interface LoginPayload {

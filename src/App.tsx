@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+
 import Login from "./pages/auth/Login";
-import Register from "./pages/auth/Register"; // <-- add this
+import Register from "./pages/auth/Register";
 
 import Dashboard from "./pages/dashboard/Dashboard";
 import Classes from "./pages/classes/Classes";
@@ -8,22 +9,28 @@ import Students from "./pages/students/Students";
 import Attendance from "./pages/attendance/Attendance";
 import History from "./pages/history/History";
 
+import AdminDashboard from "./pages/adminDashboard/AdminDashboard";
+import Unauthorized from "./pages/Unauthorized";
+
 import AppLayout from "./components/layout/AppLayout";
+import AdminLayout from "./components/layout/AdminLayout";
+
 import ProtectedRoute from "./routes/ProtectedRoute";
 
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Public routes */}
+        {/* PUBLIC */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/unauthorized" element={<Unauthorized />} />
 
-        {/* Protected routes */}
+        {/* TEACHER / USER ROUTES */}
         <Route
           path="/"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute allowedRoles={["teacher"]}>
               <AppLayout />
             </ProtectedRoute>
           }
@@ -35,6 +42,22 @@ export default function App() {
           <Route path="attendance" element={<Attendance />} />
           <Route path="history" element={<History />} />
         </Route>
+
+        {/* ADMIN ROUTES (SEPARATE LAYOUT) */}
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <AdminLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route index element={<AdminDashboard />} />
+          <Route path="dashboard" element={<AdminDashboard />} />
+        </Route>
+
+        {/* FALLBACK */}
+        <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </BrowserRouter>
   );

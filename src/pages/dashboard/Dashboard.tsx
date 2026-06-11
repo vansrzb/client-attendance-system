@@ -65,7 +65,7 @@ function getLast7Days(): { label: string; dateStr: string }[] {
 // ─── component ───────────────────────────────────────────────────────────────
 
 export default function Dashboard() {
-  const { getTeacher } = useAuth();
+  const { getUser: getTeacher } = useAuth();
   const teacher = getTeacher();
 
   const [classes, setClasses] = useState<Class[]>([]);
