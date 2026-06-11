@@ -7,6 +7,7 @@ import {
   History,
   GraduationCap,
 } from "lucide-react";
+import { useEffect, useState } from "react";
 
 const links = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -16,7 +17,43 @@ const links = [
   { to: "/history", label: "History", icon: History },
 ];
 
+function usePHTime() {
+  const [time, setTime] = useState("");
+  const [date, setDate] = useState("");
+
+  useEffect(() => {
+    const tick = () => {
+      const now = new Date();
+      setTime(
+        now.toLocaleTimeString("en-PH", {
+          timeZone: "Asia/Manila",
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+          hour12: false,
+        }),
+      );
+      setDate(
+        now.toLocaleDateString("en-PH", {
+          timeZone: "Asia/Manila",
+          weekday: "short",
+          month: "short",
+          day: "numeric",
+        }),
+      );
+    };
+
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, []);
+
+  return { time, date };
+}
+
 export default function Sidebar() {
+  const { time, date } = usePHTime();
+
   return (
     <>
       {/* Desktop sidebar */}
@@ -49,19 +86,51 @@ export default function Sidebar() {
           ))}
         </nav>
 
+        {/* Bottom — credits */}
         <div className="px-3 py-4 border-t border-gray-100">
-          <p className="text-[11px] text-gray-400 px-3">v1.0.0</p>
+          <div className="px-3 flex items-center gap-1.5">
+            <span className="text-[11px] text-gray-300 tabular-nums leading-none">
+              © 2026
+            </span>
+            <span
+              className="text-[11px] text-gray-400 font-medium leading-none tracking-tight"
+              style={{ fontFamily: "'DM Mono', monospace" }}
+            >
+              vansrzb
+            </span>
+          </div>
         </div>
       </aside>
 
       {/* Mobile top bar */}
-      <header className="sm:hidden fixed top-0 inset-x-0 z-30 bg-white border-b border-gray-100 flex items-center gap-2 px-4 h-12">
-        <div className="w-6 h-6 rounded-md bg-green-600 flex items-center justify-center">
-          <GraduationCap size={13} className="text-white" />
+      <header className="sm:hidden fixed top-0 inset-x-0 z-30 bg-white border-b border-gray-100 flex items-center justify-between px-4 h-12">
+        {/* Left: logo + name */}
+        <div className="flex items-center gap-2">
+          <div className="w-6 h-6 rounded-md bg-green-600 flex items-center justify-center">
+            <GraduationCap size={13} className="text-white" />
+          </div>
+          <span className="font-semibold text-gray-800 text-sm tracking-tight">
+            AttendTrack
+          </span>
         </div>
-        <span className="font-semibold text-gray-800 text-sm tracking-tight">
-          AttendTrack
-        </span>
+
+        {/* Right: clock */}
+        <div className="flex items-center gap-1.5">
+          <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse shrink-0" />
+          <span
+            className="text-xs font-medium text-gray-700 tabular-nums tracking-tight"
+            style={{ fontFamily: "'DM Mono', monospace" }}
+          >
+            {time}
+          </span>
+          <span className="text-[11px] text-gray-400">{date}</span>
+          <span
+            className="text-[10px] text-gray-300 tracking-widest"
+            style={{ fontFamily: "'DM Mono', monospace" }}
+          >
+            PHT
+          </span>
+        </div>
       </header>
 
       {/* Mobile bottom nav */}
@@ -88,7 +157,7 @@ export default function Sidebar() {
           </NavLink>
         ))}
 
-        {/* Logout Icon Only */}
+        {/* Logout */}
         <button
           onClick={() => {
             localStorage.removeItem("token");

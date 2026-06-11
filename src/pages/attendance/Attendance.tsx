@@ -166,6 +166,12 @@ export default function Attendance() {
     return classes.find((c) => c.id === selectedClass)?.class_name || "";
   }, [classes, selectedClass]);
 
+  const currentSessionIndex = currentSession
+  ? [...activeSessions, ...history].findIndex(
+      (s) => s.id === currentSession.id
+    ) + 1
+  : 0;
+
   return (
     <div className="space-y-5">
       <div>
@@ -220,7 +226,7 @@ export default function Attendance() {
                 {activeSessions.length === 0 ? (
                   <p className="text-xs text-gray-400">No draft session yet.</p>
                 ) : (
-                  activeSessions.map((s) => (
+                  activeSessions.map((s, index) => (
                     <div
                       key={s.id}
                       className="flex items-center justify-between gap-2 rounded-lg border border-gray-100 px-3 py-2"
@@ -230,7 +236,7 @@ export default function Attendance() {
                         onClick={() => handleOpenSession(s)}
                       >
                         <p className="text-sm font-medium text-gray-800 truncate">
-                          Session #{s.id}
+                          Session {index + 1}
                         </p>
                         <p className="text-xs text-gray-400">
                           {s.attendance_date} · {new Date(s.created_at).toLocaleTimeString()}
@@ -264,7 +270,7 @@ export default function Attendance() {
                 {history.length === 0 ? (
                   <p className="text-xs text-gray-400">No history yet.</p>
                 ) : (
-                  history.map((s) => (
+                  history.map((s, index) => (
                     <div
                       key={s.id}
                       className="flex items-center justify-between gap-2 rounded-lg border border-gray-100 px-3 py-2"
@@ -274,7 +280,7 @@ export default function Attendance() {
                         onClick={() => handleOpenSession(s)}
                       >
                         <p className="text-sm font-medium text-gray-800 truncate">
-                          Session #{s.id}
+                          Session {index + 1}
                         </p>
                         <p className="text-xs text-gray-400">
                           {s.attendance_date} · {new Date(s.created_at).toLocaleTimeString()}
@@ -305,7 +311,7 @@ export default function Attendance() {
               <div className="bg-white border border-gray-100 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                 <div>
                   <p className="text-sm font-medium text-gray-900">
-                    Session #{currentSession.id}
+                    Session {currentSessionIndex}
                   </p>
                   <p className="text-xs text-gray-400">
                     {currentSession.attendance_date} ·{" "}
